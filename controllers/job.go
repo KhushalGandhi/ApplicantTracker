@@ -41,32 +41,33 @@ func GetJob(db *gorm.DB) fiber.Handler {
 		if err := db.Preload("PostedBy").Where("id = ?", jobID).First(&job).Error; err != nil {
 			log.Error(err)
 
-			return c.Status(http.StatusNotFound).SendString("Job not found")
+			return c.Status(http.StatusNotFound).JSON("Job not found")
 		}
 		return c.Status(http.StatusOK).JSON(job)
 	}
 }
 
-//func GetJobs(c *fiber.Ctx) error {
-//	var jobs []models.Job
-//	result := database.DB.Find(&jobs)
-//
-//	// Log the SQL query and the result
-//	if result.Error != nil {
-//		c.Logger().Errorf("Error fetching jobs: %v", result.Error)
-//		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-//			"error": result.Error.Error(),
-//		})
-//	}
-//	c.Logger().Infof("Jobs retrieved: %v", jobs)
-//
-//	if len(jobs) == 0 {
-//		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-//			"message": "No jobs found",
-//		})
-//	}
-//	return c.JSON(jobs)
-//}
+func GetJobs(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var jobs []models.Job
+
+		// Find all jobs and preload the PostedBy relationship
+		if err := db.Preload("PostedBy").Find(&jobs).Error; err != nil {
+			log.Error(err)
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Internal Server Error",
+			})
+		}
+
+		if len(jobs) == 0 {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"message": "No jobs found",
+			})
+		}
+
+		return c.Status(http.StatusOK).JSON(jobs)
+	}
+}
 
 func GetApplicants(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {

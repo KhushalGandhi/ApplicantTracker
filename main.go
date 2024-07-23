@@ -27,7 +27,7 @@ func main() {
 	app.Get("/admin/job/:job_id", middleware.AuthMiddleware, controllers.GetJob(db))
 	app.Get("/admin/applicants", middleware.AuthMiddleware, controllers.GetApplicants(db))
 	app.Get("/admin/applicant/:applicant_id", middleware.AuthMiddleware, controllers.GetApplicant(db))
-	app.Get("/jobs", controllers.GetJob(db))
+	app.Get("/jobs", controllers.GetJobs(db))
 	app.Post("/jobs/apply", middleware.AuthMiddleware, controllers.ApplyJob(db)) // Implement ApplyJob controller if needed
 
 	app.Listen(":3000")
